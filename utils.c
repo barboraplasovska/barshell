@@ -18,18 +18,29 @@ char* readInput()
     char* buffer = malloc(size_of(char) * bufferSize);
 
     if (!buffer) // allocation error
-    {
         printf("barshell: allocation error\n");
-    }
     else
     {
         char c;
-        while(true)
+        while (true)
         {
             c = scanf("%c", &c);
 
             if (c == EOF) // end of the string
             {
+                buffer[pos] = '\0';
+                return buffer;
+            }
+            else
+            {
+                buffer[pos] = c;
+            }
+
+            pos++;
+
+            if (pos >= bufferSize)
+            {
+                bufferSize *= 2;
 
             }
         }

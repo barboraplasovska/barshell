@@ -1,1 +1,2 @@
-void execute(char** argv);
+
+void executeCommand();
