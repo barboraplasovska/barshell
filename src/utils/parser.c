@@ -1,50 +1,17 @@
-#include "utils.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include "parser.h"
 #include "builtin.h"
 
-void run()
+// STRING LENGTH
+// gets the length of a string
+size_t strLen(char* string)
 {
-    int status = 0;
-
-    while(status == 0)
-    {
-        printf("$ ");
-        char* userInput = readInput();
-        Commands com = getCommand(userInput);
-        if (com != NULL)
-            status = executeCommand(com);
-    }
+    size_t len = 0;
+    while (string[len])
+        len++;
+    return len;
 }
-
-int executeCommand(Commands command, char* args)
-{
-    if (command == QUIT)
-       return 1;
-    else
-    {
-       switch (command)
-       {
-           case ECHO:
-               echo(args);
-               break;
-           case CAT:
-               cat(args);
-               break;
-           case CLEAR:
-               clear();
-               break;
-           case HELP:
-               help();
-               break;
-           default:
-               unknownCommand();
-               break;
-       }
-    }
-    return 0;
-}
-
-
-
 
 // READ INPUT
 // reads the user's input
@@ -58,7 +25,7 @@ char* readInput(void)
 
     // TODO: free the buffer after it is not used anymore
     // idk where for now
-    char* buffer = malloc(size_of(char) * bufferSize);
+    char* buffer = malloc(sizeof(char) * bufferSize);
 
     if (!buffer) // allocation error
     {
@@ -66,7 +33,7 @@ char* readInput(void)
         return NULL;
     }
     char c;
-    while (true)
+    while (1)
     {
         c = scanf("%c", &c);
 
@@ -96,12 +63,43 @@ char* readInput(void)
     return buffer;
 }
 
-size_t strlen(char* string)
+
+// REMOVE SPACES
+// removes additional spaces in a string and returns a new one
+// input: char* string to check and it's length
+// output: new char* without double/triple/.. spaces
+char* removeSpaces(char* str, size_t len)
 {
-    size_t len = 0;
-    while (string[len])
-        len++;
-    return len;
+    char* new = malloc(sizeof(char) * len);
+    size_t i = 0;
+    size_t ni = 0;
+    int space = 0;
+
+    while (i < len)
+    {
+        if (space == 1)
+        {
+           if (str[i] == ' ')
+              i++;
+           else
+           {
+              space = 0;
+              new[ni] = str[i];
+              i++;
+              ni++;
+           }
+        }
+        else
+        {
+           if (str[i] == ' ')
+              space = 1;
+
+           new[ni] = str[i];
+           i++;
+           ni++;
+        }
+    }
+    return new;
 }
 
 // IS COMMAND
@@ -125,32 +123,40 @@ int isCommand(char* str)
 // input: string containing the users input
 // output: Commands enum type of the command
 //         NULL if an error occured or no command found
-Commands getCommand(char* buffer)
+enum Commands getCommand(char* buffer, char* cmd)
 {
     size_t i = 0;
     size_t tempI = 0;
-    size_t len = strlen(buffer);
-    Commands c = NULL;
-    char* temp = malloc(size_of(char) * 10); //a command should not exceed that
+    size_t len = strLen(buffer);
+    cmd = malloc(sizeof(char) * 10); //a command should not exceed that
 
     if (!buffer) // allocation error
     {
         printf("barshell: allocation error\n");
-        return NULL;
+        return ERROR;
     }
-    while (i < len && !c)
+    while (i < len)
     {
-        if (buffer[i] == ' ')
-            tempI++;
-        else
+        if (buffer[i] != ' ')
         {
-            temp[tempI] = buffer[i];
+            cmd[tempI] = buffer[i];
+            tempI++;
+            i++;
         }
-
-        c = isCommand(temp);
-        if (c != NULL)
-            return c;
-        tempI++;
-        i++;
     }
+
+    return isCommand(cmd);
+}
+
+char* getArgs(char* cmd, char* buffer)
+{
+    char* new;
+    size_t lenCmd = strLen(cmd);
+    size_t lenBuf = strLen(buffer);
+    new = malloc(sizeof(char) * (lenBuf - lenCmd));
+
+    for (size_t i = lenCmd-1; i < lenBuf; i++)
+        new[i-lenCmd-1] = buffer[i];
+
+    return new;
 }
