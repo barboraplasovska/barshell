@@ -6,9 +6,9 @@ void help()
     printf("-----------------------------------\n");
     printf("\nHere is the list of commands that you can execute:\n");
 
-    for (size_t i = 0; i < BuiltIns; i++)
+    for (size_t i = 0; i < NbCommands; i++)
     {
-        printf("%s\n", BuiltIn[i]);
+        printf("%s\n", ComStr[i]);
     }
     printf("-----------------------------------\n");$
 }

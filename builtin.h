@@ -1,10 +1,18 @@
 
-DEFINE BuiltInNb 4
+DEFINE NbCommands 4
 
-char* BuiltIns =
+enum Commands
+{
+    ECHO,
+    CAT,
+    QUIT,
+    HELP,
+};
+
+char* ComStr =
 {
     "ECHO",
     "CAT",
     "QUIT",
-    "HELP",
-}
+    "HELP"
+};
