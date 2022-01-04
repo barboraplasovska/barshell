@@ -1,17 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "parser.h"
 #include "builtin.h"
-
-// STRING LENGTH
-// gets the length of a string
-size_t strLen(char* string)
-{
-    size_t len = 0;
-    while (string[len])
-        len++;
-    return len;
-}
 
 // READ INPUT
 // reads the user's input
@@ -32,12 +23,13 @@ char* readInput(void)
         printf("barshell: allocation error\n");
         return NULL;
     }
+
     char c;
     while (1)
     {
-        c = scanf("%c", &c);
+        c = getchar(); 
 
-        if (c == EOF) // end of the string
+        if (c == -1 || c == '\n') // end of the string
         {
             buffer[pos] = '\0';
             return buffer;
@@ -48,7 +40,6 @@ char* readInput(void)
         }
 
         pos++;
-
         if (pos >= bufferSize)
         {
             bufferSize *= 2;
@@ -60,6 +51,7 @@ char* readInput(void)
             }
         }
     }
+    
     return buffer;
 }
 
@@ -111,6 +103,7 @@ int isCommand(char* str)
     int i = 0;
     while (i < NbCommands)
     {
+        printf("\'%s\' == \'%s\' ? \n", ComStr[i], str);
         if (ComStr[i] == str)
             return i;
         i++;
@@ -127,7 +120,7 @@ enum Commands getCommand(char* buffer, char* cmd)
 {
     size_t i = 0;
     size_t tempI = 0;
-    size_t len = strLen(buffer);
+    size_t len = strlen(buffer);
     cmd = malloc(sizeof(char) * 10); //a command should not exceed that
 
     if (!buffer) // allocation error
@@ -151,8 +144,8 @@ enum Commands getCommand(char* buffer, char* cmd)
 char* getArgs(char* cmd, char* buffer)
 {
     char* new;
-    size_t lenCmd = strLen(cmd);
-    size_t lenBuf = strLen(buffer);
+    size_t lenCmd = strlen(cmd);
+    size_t lenBuf = strlen(buffer);
     new = malloc(sizeof(char) * (lenBuf - lenCmd));
 
     for (size_t i = lenCmd-1; i < lenBuf; i++)

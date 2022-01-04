@@ -5,16 +5,20 @@
 #include "utils/builtin.h"
 
 // MAIN ROUTINE
-int main()
+int main(void)
 {
     int status = 0;
 
     while(status == 0)
     {
-        printf("$ ");
+        printf("bshell$ ");
         char* buffer = readInput();
+        //
+        //printf("\nread input\n");
+
         char* cmd = NULL;
         enum Commands com = getCommand(buffer, cmd);
+
         char* args = getArgs(cmd, buffer);
         if (com != ERROR)
         {
