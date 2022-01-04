@@ -1,0 +1,3 @@
+- fix position of functions between files utils and parser
+- finish commands: ECHO, CAT
+- write unit tests

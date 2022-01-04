@@ -1,18 +1,24 @@
 
-DEFINE NbCommands 4
+DEFINE NbCommands 5
 
 enum Commands
 {
     ECHO,
     CAT,
-    QUIT,
     HELP,
+    CLEAR,
+    QUIT,
+    UNKNOWN
 };
 
 char* ComStr =
 {
-    "ECHO",
-    "CAT",
-    "QUIT",
-    "HELP"
+    "echo",
+    "cat",
+    "help",
+    "clear",
+    "quit"
 };
+
+void help(void);
+void clear(void);

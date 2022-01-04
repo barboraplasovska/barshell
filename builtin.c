@@ -1,6 +1,6 @@
 #include "builtin.h"
 
-void help()
+void help(void)
 {
     printf("Welcome to Barunka's shell!\n");
     printf("-----------------------------------\n");
@@ -11,6 +11,11 @@ void help()
         printf("%s\n", ComStr[i]);
     }
     printf("-----------------------------------\n");$
+}
+
+void clear(void)
+{
+    printf("\e[1;1H\e[2J");
 }
 
 
