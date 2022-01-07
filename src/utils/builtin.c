@@ -1,11 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include "builtin.h"
 
 // EXECUTE COMMAND
 // executes the appropriate command
-int executeCommand(enum Commands command, char* cmd, char* args)
+int executeCommand(enum Commands command,struct Tokens args)
 {
+    
     if (command == QUIT)
        return 1;
     else
@@ -22,7 +21,7 @@ int executeCommand(enum Commands command, char* cmd, char* args)
                help();
                break;
            default:
-               unknownCommand(cmd);
+               unknownCommand(args.values[0]);
                break;
        }
     }
@@ -32,9 +31,16 @@ int executeCommand(enum Commands command, char* cmd, char* args)
 // ECHO
 // prints out the arguments into the standart output
 // usage: echo text text
-void echo(char* args)
+void echo(struct Tokens args)
 {
-    printf("%s", args);
+    if (args.length == 1)
+        printf("\n\n");
+    else
+    {
+        for (size_t i = 1; i < args.length; i++)
+            printf("%s ", args.values[i]);
+        printf("\n");
+    }
 }
 
 // HELP
@@ -43,12 +49,12 @@ void echo(char* args)
 void help(void)
 {
     printf("Welcome to Barunka's shell!\n");
-    printf("-----------------------------------\n");
-    printf("\nHere is the list of commands that you can execute:\n");
+    printf("\n-----------------------------------\n");
+    printf("Here is the list of commands that you can execute:\n");
 
     for (int i = 0; i < NbCommands; i++)
     {
-        printf("%s\n", ComStr[i]);
+        printf("%s --> %s\n", ComStr[i], Usage[i]);
     }
     printf("-----------------------------------\n");
 }
@@ -63,5 +69,5 @@ void clear(void)
 
 void unknownCommand(char* c)
 {
-    printf("barshell: %s: unknown command\n", c);
+    printf("bshell: command not found: %s\n", c);
 }

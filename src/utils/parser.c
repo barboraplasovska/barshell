@@ -1,8 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include "parser.h"
-#include "builtin.h"
 
 // READ INPUT
 // reads the user's input
@@ -20,7 +16,7 @@ char* readInput(void)
 
     if (!buffer) // allocation error
     {
-        printf("barshell: allocation error\n");
+        printf("bshell: allocation error\n");
         return NULL;
     }
 
@@ -46,7 +42,7 @@ char* readInput(void)
             buffer = realloc(buffer, bufferSize);
             if (!buffer) // allocation error
             {
-                printf("barshell: allocation error\n");
+                printf("bshell: allocation error\n");
                 return NULL;
             }
         }
@@ -58,16 +54,17 @@ char* readInput(void)
 
 // REMOVE SPACES
 // removes additional spaces in a string and returns a new one
-// input: char* string to check and it's length
+// input: char* string to check
 // output: new char* without double/triple/.. spaces
-char* removeSpaces(char* str, size_t len)
+char* removeSpaces(char* str)
 {
+    size_t len = strlen(str);
     char* new = malloc(sizeof(char) * len);
     size_t i = 0;
     size_t ni = 0;
     int space = 0;
 
-    while (i < len)
+    while (i < len && str[i] != '\0')
     {
         if (space == 1)
         {
@@ -91,65 +88,124 @@ char* removeSpaces(char* str, size_t len)
            ni++;
         }
     }
+    if (str[i] != '\0')
+        str[i] = '\0';
     return new;
 }
+
+struct Tokens getTokens(char* buffer)
+{
+    size_t len = strlen(buffer);
+    buffer = removeSpaces(buffer);
+
+    char **tokens = malloc(len * sizeof(char*));
+    char *token = malloc(128 * sizeof(char));
+    size_t buffsize = len;
+    size_t tokensize = 128;
+    size_t i = 0;
+    size_t j = 0;
+    size_t count = 0;
+
+    if (!tokens) 
+    {
+        fprintf(stderr, "bshell: allocation error\n");
+        exit(EXIT_FAILURE);
+    }
+
+    while (i < len && buffer[i] != '\0')
+    {
+        if (buffer[i] == ' ')
+        {
+            tokens[count] = token;
+            token = calloc(128, sizeof(char));
+            count++;
+            j = 0;
+            i++;
+        }
+        else
+        {
+            token[j] = buffer[i];
+            j++;
+            i++;
+        }       
+
+        if (count >= buffsize) 
+        {
+            buffsize += 100;
+            tokens = realloc(tokens, buffsize * sizeof(char*));
+            if (!tokens)
+                errx(3, "bshell: allocation error\n");
+        }
+        if (j >= tokensize)
+        {
+            tokensize += 100;
+            token = realloc(token, tokensize * sizeof(char*));
+            if (!token)
+                errx(3, "bshell: allocation error\n");
+        }
+    }
+
+    struct Tokens tok;
+    tok.values = tokens;
+    tok.length = count;
+    //free(tokens);
+    //free(token);
+
+    printf("\n");
+    for (size_t i = 0; i < tok.length; i++)
+    {
+        printf("\'%s\' ", tok.values[i]);
+    }
+    printf("\n");
+    return tok;
+}
+
+int compareStrings(char* str1, char* str2)
+{
+    size_t len1 = strlen(str1);
+    size_t len2 = strlen(str2);
+
+    if (len1 != len2)
+        return 1;
+    
+    for (size_t i = 0; i < len1; i++)
+    {
+        if (str1[i] != str2[i])
+            return 1;
+    }
+
+    return 0;
+}
+
 
 // IS COMMAND
 // checks if a string is a command
 // input: char* string
 // output: int representing the command in enum
-int isCommand(char* str)
+enum Commands isCommand(char* str)
 {
     int i = 0;
     while (i < NbCommands)
     {
-        printf("\'%s\' == \'%s\' ? \n", ComStr[i], str);
-        if (ComStr[i] == str)
-            return i;
+        if (compareStrings(ComStr[i], str) == 0)
+            break;
         i++;
     }
-    return i;
-}
-
-// GET COMMAND
-// gets the command from the input
-// input: string containing the users input
-// output: Commands enum type of the command
-//         NULL if an error occured or no command found
-enum Commands getCommand(char* buffer, char* cmd)
-{
-    size_t i = 0;
-    size_t tempI = 0;
-    size_t len = strlen(buffer);
-    cmd = malloc(sizeof(char) * 10); //a command should not exceed that
-
-    if (!buffer) // allocation error
+    
+    switch (i)
     {
-        printf("barshell: allocation error\n");
-        return ERROR;
+        case 0:
+            return ECHO;
+        case 1:
+            return HELP;
+        case 2:
+            return CLEAR;
+        case 3:
+            return QUIT;
+        case 4:
+            return UNKNOWN;
+        default:
+            return ERROR;
     }
-    while (i < len)
-    {
-        if (buffer[i] != ' ')
-        {
-            cmd[tempI] = buffer[i];
-            tempI++;
-            i++;
-        }
-    }
-
-    return isCommand(cmd);
-}
-
-char* getArgs(char* cmd, char* buffer)
-{
-    char* new;
-    size_t lenCmd = strlen(cmd);
-    size_t lenBuf = strlen(buffer);
-    new = malloc(sizeof(char) * (lenBuf - lenCmd));
-
-    for (size_t i = lenCmd-1; i < lenBuf; i++)
-        new[i-lenCmd-1] = buffer[i];
-
-    return new;
+    return ERROR;
 }

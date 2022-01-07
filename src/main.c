@@ -1,8 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include "main.h"
-#include "utils/parser.h"
-#include "utils/builtin.h"
 
 // MAIN ROUTINE
 int main(void)
@@ -13,16 +9,17 @@ int main(void)
     {
         printf("bshell$ ");
         char* buffer = readInput();
-        //
-        //printf("\nread input\n");
-
-        char* cmd = NULL;
-        enum Commands com = getCommand(buffer, cmd);
-
-        char* args = getArgs(cmd, buffer);
-        if (com != ERROR)
+        if (buffer[0] != '\0')
         {
-            status = executeCommand(com, cmd, args);
+            struct Tokens args;
+            args = getTokens(buffer);
+            enum Commands command = isCommand(args.values[0]);
+            if (command != ERROR)
+            {
+                status = executeCommand(command, args);
+            }
+            else
+                errx(2, "Bshell : command ERROR");
         }
     }
     
